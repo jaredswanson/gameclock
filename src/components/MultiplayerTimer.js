@@ -107,10 +107,10 @@ const MultiplayerTimer = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  return (
+return (
     <div className="p-4 max-w-4xl mx-auto bg-gray-100">
-      <div className="flex flex-wrap justify-between mb-4 gap-2">
-        <Button onClick={toggleTimer} variant="outline">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
+        <Button onClick={toggleTimer} variant="outline" className="col-span-2 sm:col-span-1">
           {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
           {isRunning ? 'Pause' : 'Start'}
         </Button>
@@ -119,10 +119,10 @@ const MultiplayerTimer = () => {
         <Button onClick={removePlayer} variant="outline" disabled={isRunning}><UserMinus className="mr-2" />Remove Player</Button>
         <Button onClick={toggleDirection} variant="outline">
           <ArrowLeftRight className="mr-2" />
-          Reverse Direction
+          Reverse
         </Button>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
         {players.map((player, index) => (
           <Card 
             key={index} 
@@ -137,11 +137,11 @@ const MultiplayerTimer = () => {
                 </>
               ) : (
                 <>
-  		  <VisuallyHidden as="h3">
-  		    <CardHeader>
-		      <CardTitle>{player.name}</CardTitle>
-  		    </CardHeader>
-  		  </VisuallyHidden>
+                  <VisuallyHidden as="h3">
+                    <CardHeader>
+                      <CardTitle>{player.name}</CardTitle>
+                    </CardHeader>
+                  </VisuallyHidden>
                   <Input
                     value={player.name}
                     onChange={(e) => updatePlayerName(index, e.target.value)}
