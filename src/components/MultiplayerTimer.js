@@ -115,12 +115,12 @@ return (
           {isRunning ? 'Pause' : 'Start'}
         </Button>
         <Button onClick={resetTimers} variant="outline"><RotateCcw className="mr-2" />Reset</Button>
-        <Button onClick={addPlayer} variant="outline" disabled={isRunning}><UserPlus className="mr-2" />Add Player</Button>
-        <Button onClick={removePlayer} variant="outline" disabled={isRunning}><UserMinus className="mr-2" />Remove Player</Button>
         <Button onClick={toggleDirection} variant="outline">
           <ArrowLeftRight className="mr-2" />
           Reverse
         </Button>
+        <Button onClick={addPlayer} variant="outline" disabled={isRunning}><UserPlus className="mr-2" />Add Player</Button>
+        <Button onClick={removePlayer} variant="outline" disabled={isRunning}><UserMinus className="mr-2" />Remove Player</Button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
         {players.map((player, index) => (
