@@ -1,12 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, UserPlus, UserMinus, Volume2, VolumeX, ArrowLeftRight } from 'lucide-react';
-// import { Button } from '@/components/ui/button';
-// import { Input } from '@/components/ui/input';
-// import { Card, CardContent } from '@/components/ui/card';
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import React, { useState, useEffect } from 'react';
+import { Play, Pause, RotateCcw, UserPlus, UserMinus, ArrowLeftRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { VisuallyHidden } from './ui/visually-hidden';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 
 const MultiplayerTimer = () => {
@@ -140,6 +137,11 @@ const MultiplayerTimer = () => {
                 </>
               ) : (
                 <>
+  		  <VisuallyHidden as="h3">
+  		    <CardHeader>
+		      <CardTitle>{player.name}</CardTitle>
+  		    </CardHeader>
+  		  </VisuallyHidden>
                   <Input
                     value={player.name}
                     onChange={(e) => updatePlayerName(index, e.target.value)}
