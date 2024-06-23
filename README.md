@@ -1,6 +1,6 @@
 # Multiplayer Game Clock
 
-⏱️ A React-based timer for board games. Customizable players, colors, and turn order. Perfect for chess, Go, or any turn-based game!
+⏱️ A React-based timer for bcard games & board games. Customizable players, colors, and turn order. Perfect for chess, Uno, Go, or any turn-based game!
 
 ## Features
 
@@ -22,8 +22,8 @@
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/multiplayer-game-clock.git
-   cd multiplayer-game-clock
+   git clone https://github.com/jaredswanson/gameclock.git
+   cd gameclock
    ```
 
 2. Install dependencies:
@@ -53,7 +53,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License.
 
 ## Acknowledgments
 
