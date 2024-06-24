@@ -28,6 +28,7 @@ const MultiplayerTimer = () => {
   const [isEditing, setIsEditing] = useState(true);
   const [isReverseEnabled, setIsReverseEnabled] = useState(false);
   const [isSkipEnabled, setIsSkipEnabled] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
   useEffect(() => {
     let interval;
@@ -46,13 +47,18 @@ const MultiplayerTimer = () => {
     return () => clearInterval(interval);
   }, [isRunning, currentPlayerIndex, players]);
 
+
   const toggleTimer = () => {
     if (isRunning) {
       // If we're pausing the game, re-enable editing
       setIsEditing(true);
     } else {
-      // If we're starting the game, disable editing
+      // If we're starting or resuming the game, disable editing
       setIsEditing(false);
+      // If this is the first time we're starting the game, set gameStarted to true
+      if (!gameStarted) {
+        setGameStarted(true);
+      }
     }
     setIsRunning(!isRunning);
   };
@@ -62,6 +68,7 @@ const MultiplayerTimer = () => {
     setIsRunning(false);
     setCurrentPlayerIndex(0);
     setIsEditing(true);
+    setGameStarted(false);  // Reset the gameStarted state
   };
 
   const addPlayer = () => {
@@ -166,7 +173,7 @@ const MultiplayerTimer = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
         <Button onClick={toggleTimer} variant="outline" className="col-span-2 sm:col-span-1">
           {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
-          {isRunning ? 'Pause' : 'Start'}
+          {isRunning ? 'Pause' : (gameStarted ? 'Resume' : 'Start')}
         </Button>
 
         {(!isEditing && isReverseEnabled) && (
