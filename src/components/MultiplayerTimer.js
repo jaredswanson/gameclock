@@ -56,15 +56,6 @@ const MultiplayerTimer = () => {
     setIsRunning(!isRunning);
   };
 
-  const nextTurn = () => {
-    setPlayers(prevPlayers => {
-      const newPlayers = [...prevPlayers];
-      newPlayers[currentPlayerIndex].time = newPlayers[currentPlayerIndex].initialTime;
-      return newPlayers;
-    });
-    setCurrentPlayerIndex(prevIndex => (prevIndex + direction + players.length) % players.length);
-  };
-
   const resetTimers = () => {
     setPlayers(players.map(player => ({ ...player, time: player.initialTime, isActive: false })));
     setIsRunning(false);
@@ -84,10 +75,40 @@ const MultiplayerTimer = () => {
     }
   };
 
+  const moveToNextPlayer = (currentIndex, currentDirection) => {
+    return (currentIndex + currentDirection + players.length) % players.length;
+  };
+
   const toggleDirection = () => {
-    if (isReverseEnabled) {
+    if (isReverseEnabled && isRunning) {
       setDirection(prevDirection => prevDirection * -1);
+      setCurrentPlayerIndex(prevIndex => {
+        // Move in the opposite direction of the current direction
+        const newIndex = moveToNextPlayer(prevIndex, -direction);
+        
+        setPlayers(prevPlayers => {
+          const newPlayers = [...prevPlayers];
+          newPlayers[newIndex].time = newPlayers[newIndex].initialTime;
+          return newPlayers;
+        });
+
+        return newIndex;
+      });
     }
+  };
+
+  const nextTurn = () => {
+    setCurrentPlayerIndex(prevIndex => {
+      const newIndex = moveToNextPlayer(prevIndex, direction);
+      
+      setPlayers(prevPlayers => {
+        const newPlayers = [...prevPlayers];
+        newPlayers[newIndex].time = newPlayers[newIndex].initialTime;
+        return newPlayers;
+      });
+
+      return newIndex;
+    });
   };
 
   const updatePlayerName = (index, newName) => {
