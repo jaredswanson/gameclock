@@ -5,6 +5,8 @@ import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { VisuallyHidden } from './ui/visually-hidden';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Switch } from "./ui/switch"
+import { Label } from "./ui/label"
 
 const MultiplayerTimer = () => {
   const colors = {
@@ -24,6 +26,7 @@ const MultiplayerTimer = () => {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [direction, setDirection] = useState(1); // 1 for clockwise, -1 for counter-clockwise
   const [isEditing, setIsEditing] = useState(true);
+  const [isReverseEnabled, setIsReverseEnabled] = useState(false);
 
   useEffect(() => {
     let interval;
@@ -82,7 +85,9 @@ const MultiplayerTimer = () => {
   };
 
   const toggleDirection = () => {
-    setDirection(prevDirection => prevDirection * -1);
+    if (isReverseEnabled) {
+      setDirection(prevDirection => prevDirection * -1);
+    }
   };
 
   const updatePlayerName = (index, newName) => {
@@ -119,21 +124,30 @@ const MultiplayerTimer = () => {
   return (
     <div className="p-4 max-w-4xl mx-auto bg-gray-100">
 
-
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
         <Button onClick={toggleTimer} variant="outline" className="col-span-2 sm:col-span-1">
           {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
           {isRunning ? 'Pause' : 'Start'}
         </Button>
-        <Button onClick={toggleDirection} variant="outline">
-          <ArrowLeftRight className="mr-2" />
-          Reverse
-        </Button>
+        {(!isEditing && isReverseEnabled) && (
+          <Button onClick={toggleDirection} variant="outline" className="col-span-2 sm:col-span-1">
+            <ArrowLeftRight className="mr-2" />
+            Reverse
+          </Button>
+        )}
         {isEditing && (
           <>
-            <Button onClick={resetTimers} variant="outline"><RotateCcw className="mr-2" />Reset</Button>
             <Button onClick={addPlayer} variant="outline"><UserPlus className="mr-2" />Add Player</Button>
             <Button onClick={removePlayer} variant="outline"><UserMinus className="mr-2" />Remove Player</Button>
+            <Button onClick={resetTimers} variant="outline"><RotateCcw className="mr-2" />Reset</Button>
+            <div className="col-span-2 sm:col-span-3 flex items-center space-x-2">
+              <Switch
+                id="reverse-mode"
+                checked={isReverseEnabled}
+                onCheckedChange={setIsReverseEnabled}
+              />
+              <Label htmlFor="reverse-mode">Enable Reverse Mode</Label>
+            </div>
           </>
         )}
       </div>
