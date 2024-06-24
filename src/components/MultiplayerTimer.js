@@ -190,10 +190,6 @@ const MultiplayerTimer = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const handleResetClick = () => {
-    setShowResetConfirmation(true);
-  };
-
   const handleResetConfirm = () => {
     resetTimers();
     setShowResetConfirmation(false);
@@ -213,20 +209,20 @@ const MultiplayerTimer = () => {
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
-        <Button onClick={toggleTimer} variant="outline" className="col-span-2 sm:col-span-1">
+        <Button onClick={toggleTimer} variant="outline" className="py-7 col-span-2 sm:col-span-1">
           {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
           {isRunning ? 'Pause' : (gameStarted ? 'Resume' : 'Start')}
         </Button>
 
         {(!isEditing && isReverseEnabled) && (
-          <Button onClick={toggleDirection} variant="outline" className="col-span-2 sm:col-span-1">
+          <Button onClick={toggleDirection} variant="outline" className="py-7 col-span-2 sm:col-span-1">
             <ArrowLeftRight className="mr-2" />
             Reverse
           </Button>
         )}
 
         {(!isEditing && isSkipEnabled) && (
-          <Button onClick={skipNextPlayer} variant="outline" className="col-span-2 sm:col-span-1">
+          <Button onClick={skipNextPlayer} variant="outline" className="py-7 col-span-2 sm:col-span-1">
             <SkipForward className="mr-2" />
             Skip
           </Button>
@@ -234,8 +230,8 @@ const MultiplayerTimer = () => {
 
         {isEditing && (
           <>
-            <Button onClick={addPlayer} variant="outline"><UserPlus className="mr-2" />Add Player</Button>
-            <Button onClick={removePlayer} variant="outline"><UserMinus className="mr-2" />Remove Player</Button>
+            <Button onClick={addPlayer} variant="outline" className="py-7"><UserPlus className="mr-2" />Add Player</Button>
+            <Button onClick={removePlayer} variant="outline" className="py-7"><UserMinus className="mr-2" />Remove Player</Button>
 
             <CustomAlertDialog 
               isOpen={showResetConfirmation}
@@ -243,7 +239,7 @@ const MultiplayerTimer = () => {
               onConfirm={handleResetConfirm}
               onCancel={handleResetCancel}
             />
-            <Button onClick={() => setShowResetConfirmation(true)} variant="outline">
+            <Button onClick={() => setShowResetConfirmation(true)} variant="outline" className="py-7">
               <RotateCcw className="mr-2" />Reset
             </Button>
 
