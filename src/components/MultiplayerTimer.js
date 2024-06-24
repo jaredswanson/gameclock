@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Switch } from "./ui/switch"
 import { Label } from "./ui/label"
 import { Alert } from './ui/alert';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog"
 
 const MultiplayerTimer = () => {
   const colors = {
@@ -33,6 +34,7 @@ const MultiplayerTimer = () => {
   const [showUndo, setShowUndo] = useState(false);
   const [previousPlayerIndex, setPreviousPlayerIndex] = useState(null);
   const [showTutorial, setShowTutorial] = useState(true);
+  const [showResetConfirmation, setShowResetConfirmation] = useState(false);
 
   useEffect(() => {
     let interval;
@@ -188,6 +190,19 @@ const MultiplayerTimer = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  const handleResetClick = () => {
+    setShowResetConfirmation(true);
+  };
+
+  const handleResetConfirm = () => {
+    resetTimers();
+    setShowResetConfirmation(false);
+  };
+
+  const handleResetCancel = () => {
+    setShowResetConfirmation(false);
+  };
+
   return (
     <div className="p-4 max-w-4xl mx-auto bg-gray-100">
       {showTutorial && gameStarted && (
@@ -221,6 +236,27 @@ const MultiplayerTimer = () => {
           <>
             <Button onClick={addPlayer} variant="outline"><UserPlus className="mr-2" />Add Player</Button>
             <Button onClick={removePlayer} variant="outline"><UserMinus className="mr-2" />Remove Player</Button>
+
+            <AlertDialog open={showResetConfirmation} onOpenChange={setShowResetConfirmation}>
+              <AlertDialogTrigger asChild>
+                <Button onClick={handleResetClick} variant="outline"><RotateCcw className="mr-2" />Reset</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure you want to reset?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action will reset all player timers and game settings. This cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={handleResetCancel}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleResetConfirm}>Reset</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+
+
             <Button onClick={resetTimers} variant="outline"><RotateCcw className="mr-2" />Reset</Button>
 
             <div className="col-span-2 sm:col-span-3 flex items-center space-x-2">
