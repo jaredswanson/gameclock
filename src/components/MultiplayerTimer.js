@@ -23,6 +23,7 @@ const MultiplayerTimer = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [direction, setDirection] = useState(1); // 1 for clockwise, -1 for counter-clockwise
+  const [isEditing, setIsEditing] = useState(true);
 
   useEffect(() => {
     let interval;
@@ -42,6 +43,13 @@ const MultiplayerTimer = () => {
   }, [isRunning, currentPlayerIndex, players]);
 
   const toggleTimer = () => {
+    if (isRunning) {
+      // If we're pausing the game, re-enable editing
+      setIsEditing(true);
+    } else {
+      // If we're starting the game, disable editing
+      setIsEditing(false);
+    }
     setIsRunning(!isRunning);
   };
 
@@ -58,6 +66,7 @@ const MultiplayerTimer = () => {
     setPlayers(players.map(player => ({ ...player, time: player.initialTime, isActive: false })));
     setIsRunning(false);
     setCurrentPlayerIndex(0);
+    setIsEditing(true);
   };
 
   const addPlayer = () => {
@@ -77,7 +86,7 @@ const MultiplayerTimer = () => {
   };
 
   const updatePlayerName = (index, newName) => {
-    if (!isRunning) {
+    if (isEditing) {
       const newPlayers = [...players];
       newPlayers[index].name = newName;
       setPlayers(newPlayers);
@@ -85,7 +94,7 @@ const MultiplayerTimer = () => {
   };
 
   const updatePlayerTime = (index, newTime) => {
-    if (!isRunning) {
+    if (isEditing) {
       const newPlayers = [...players];
       newPlayers[index].time = parseInt(newTime, 10) || 0;
       newPlayers[index].initialTime = parseInt(newTime, 10) || 0;
@@ -94,7 +103,7 @@ const MultiplayerTimer = () => {
   };
 
   const updatePlayerColor = (index, newColor) => {
-    if (!isRunning) {
+    if (isEditing) {
       const newPlayers = [...players];
       newPlayers[index].color = newColor;
       setPlayers(newPlayers);
@@ -107,21 +116,28 @@ const MultiplayerTimer = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-return (
+  return (
     <div className="p-4 max-w-4xl mx-auto bg-gray-100">
+
+
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
         <Button onClick={toggleTimer} variant="outline" className="col-span-2 sm:col-span-1">
           {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
           {isRunning ? 'Pause' : 'Start'}
         </Button>
-        <Button onClick={resetTimers} variant="outline"><RotateCcw className="mr-2" />Reset</Button>
         <Button onClick={toggleDirection} variant="outline">
           <ArrowLeftRight className="mr-2" />
           Reverse
         </Button>
-        <Button onClick={addPlayer} variant="outline" disabled={isRunning}><UserPlus className="mr-2" />Add Player</Button>
-        <Button onClick={removePlayer} variant="outline" disabled={isRunning}><UserMinus className="mr-2" />Remove Player</Button>
+        {isEditing && (
+          <>
+            <Button onClick={resetTimers} variant="outline"><RotateCcw className="mr-2" />Reset</Button>
+            <Button onClick={addPlayer} variant="outline"><UserPlus className="mr-2" />Add Player</Button>
+            <Button onClick={removePlayer} variant="outline"><UserMinus className="mr-2" />Remove Player</Button>
+          </>
+        )}
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
         {players.map((player, index) => (
           <Card 
@@ -130,7 +146,7 @@ return (
             style={{borderColor: colors[player.color], backgroundColor: `${colors[player.color]}22`}}
           >
             <CardContent className="p-4">
-              {isRunning ? (
+              {!isEditing ? (
                 <>
                   <div className="text-3xl font-bold text-center mb-1">{formatTime(player.time)}</div>
                   <div className="text-sm text-center">{player.name}</div>
