@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw, UserPlus, UserMinus, ArrowLeftRight, SkipForward } from 'lucide-react';
+import { Play, Pause, RotateCcw, UserPlus, UserMinus, ArrowLeftRight, SkipForward, Undo } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -7,6 +7,7 @@ import { VisuallyHidden } from './ui/visually-hidden';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Switch } from "./ui/switch"
 import { Label } from "./ui/label"
+import { Alert } from './ui/alert';
 
 const MultiplayerTimer = () => {
   const colors = {
@@ -24,11 +25,14 @@ const MultiplayerTimer = () => {
   ]);
   const [isRunning, setIsRunning] = useState(false);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  const [direction, setDirection] = useState(1); // 1 for clockwise, -1 for counter-clockwise
+  const [direction, setDirection] = useState(1);
   const [isEditing, setIsEditing] = useState(true);
   const [isReverseEnabled, setIsReverseEnabled] = useState(false);
   const [isSkipEnabled, setIsSkipEnabled] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [showUndo, setShowUndo] = useState(false);
+  const [previousPlayerIndex, setPreviousPlayerIndex] = useState(null);
+  const [showTutorial, setShowTutorial] = useState(true);
 
   useEffect(() => {
     let interval;
@@ -47,17 +51,21 @@ const MultiplayerTimer = () => {
     return () => clearInterval(interval);
   }, [isRunning, currentPlayerIndex, players]);
 
+  useEffect(() => {
+    if (showUndo) {
+      const timer = setTimeout(() => setShowUndo(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showUndo]);
 
   const toggleTimer = () => {
     if (isRunning) {
-      // If we're pausing the game, re-enable editing
       setIsEditing(true);
     } else {
-      // If we're starting or resuming the game, disable editing
       setIsEditing(false);
-      // If this is the first time we're starting the game, set gameStarted to true
       if (!gameStarted) {
         setGameStarted(true);
+        setShowTutorial(true);
       }
     }
     setIsRunning(!isRunning);
@@ -68,7 +76,8 @@ const MultiplayerTimer = () => {
     setIsRunning(false);
     setCurrentPlayerIndex(0);
     setIsEditing(true);
-    setGameStarted(false);  // Reset the gameStarted state
+    setGameStarted(false);
+    setShowTutorial(true);
   };
 
   const addPlayer = () => {
@@ -91,49 +100,61 @@ const MultiplayerTimer = () => {
     if (isReverseEnabled && isRunning) {
       setDirection(prevDirection => prevDirection * -1);
       setCurrentPlayerIndex(prevIndex => {
-        // Move in the opposite direction of the current direction
         const newIndex = moveToNextPlayer(prevIndex, -direction);
-        
         setPlayers(prevPlayers => {
           const newPlayers = [...prevPlayers];
           newPlayers[newIndex].time = newPlayers[newIndex].initialTime;
           return newPlayers;
         });
-
         return newIndex;
       });
+      setShowUndo(true);
     }
   };
 
   const skipNextPlayer = () => {
     if (isSkipEnabled && isRunning) {
+      setPreviousPlayerIndex(currentPlayerIndex);
       setCurrentPlayerIndex(prevIndex => {
         const skippedIndex = moveToNextPlayer(prevIndex, direction);
         const newIndex = moveToNextPlayer(skippedIndex, direction);
-        
         setPlayers(prevPlayers => {
           const newPlayers = [...prevPlayers];
           newPlayers[newIndex].time = newPlayers[newIndex].initialTime;
           return newPlayers;
         });
-
         return newIndex;
       });
+      setShowUndo(true);
+    }
+  };
+
+  const handleAreaClick = () => {
+    if (isRunning && !isEditing) {
+      nextTurn();
     }
   };
 
   const nextTurn = () => {
+    setPreviousPlayerIndex(currentPlayerIndex);
     setCurrentPlayerIndex(prevIndex => {
       const newIndex = moveToNextPlayer(prevIndex, direction);
-      
       setPlayers(prevPlayers => {
         const newPlayers = [...prevPlayers];
         newPlayers[newIndex].time = newPlayers[newIndex].initialTime;
         return newPlayers;
       });
-
       return newIndex;
     });
+    setShowUndo(true);
+  };
+
+  const undoTurn = () => {
+    if (previousPlayerIndex !== null) {
+      setCurrentPlayerIndex(previousPlayerIndex);
+      setPreviousPlayerIndex(null);
+      setShowUndo(false);
+    }
   };
 
   const updatePlayerName = (index, newName) => {
@@ -169,6 +190,12 @@ const MultiplayerTimer = () => {
 
   return (
     <div className="p-4 max-w-4xl mx-auto bg-gray-100">
+      {showTutorial && gameStarted && (
+        <Alert className="mb-4">
+          <p>Click anywhere in the cards area to move to the next turn. The current player's card is highlighted.</p>
+          <Button onClick={() => setShowTutorial(false)} className="mt-2" variant="outline">Got it!</Button>
+        </Alert>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
         <Button onClick={toggleTimer} variant="outline" className="col-span-2 sm:col-span-1">
@@ -213,17 +240,24 @@ const MultiplayerTimer = () => {
               />
               <Label htmlFor="skip-mode">Enable Skip Mode</Label>
             </div>
-
           </>
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+      <div 
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4"
+        onClick={handleAreaClick}
+        style={{ cursor: isRunning && !isEditing ? 'pointer' : 'default' }}
+      >
         {players.map((player, index) => (
           <Card 
             key={index} 
-            className={`transition-all duration-200 ease-in-out ${index === currentPlayerIndex ? 'ring-2 ring-offset-2' : ''}`}
-            style={{borderColor: colors[player.color], backgroundColor: `${colors[player.color]}22`}}
+            className={`transition-all duration-200 ease-in-out ${index === currentPlayerIndex ? 'ring-4 ring-offset-2' : ''}`}
+            style={{
+              borderColor: colors[player.color], 
+              backgroundColor: `${colors[player.color]}22`,
+              transform: index === currentPlayerIndex ? 'scale(1.05)' : 'scale(1)',
+            }}
           >
             <CardContent className="p-4">
               {!isEditing ? (
@@ -273,7 +307,12 @@ const MultiplayerTimer = () => {
           </Card>
         ))}
       </div>
-      <Button onClick={nextTurn} className="mt-4 w-full" variant="default" size="lg">Next Turn</Button>
+      {showUndo && (
+        <Button onClick={undoTurn} className="mt-4 w-full" variant="outline" size="sm">
+          <Undo className="mr-2" />
+          Undo Last Turn
+        </Button>
+      )}
     </div>
   );
 };
