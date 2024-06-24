@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw, UserPlus, UserMinus, ArrowLeftRight } from 'lucide-react';
+import { Play, Pause, RotateCcw, UserPlus, UserMinus, ArrowLeftRight, SkipForward } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -27,6 +27,7 @@ const MultiplayerTimer = () => {
   const [direction, setDirection] = useState(1); // 1 for clockwise, -1 for counter-clockwise
   const [isEditing, setIsEditing] = useState(true);
   const [isReverseEnabled, setIsReverseEnabled] = useState(false);
+  const [isSkipEnabled, setIsSkipEnabled] = useState(false);
 
   useEffect(() => {
     let interval;
@@ -97,6 +98,23 @@ const MultiplayerTimer = () => {
     }
   };
 
+  const skipNextPlayer = () => {
+    if (isSkipEnabled && isRunning) {
+      setCurrentPlayerIndex(prevIndex => {
+        const skippedIndex = moveToNextPlayer(prevIndex, direction);
+        const newIndex = moveToNextPlayer(skippedIndex, direction);
+        
+        setPlayers(prevPlayers => {
+          const newPlayers = [...prevPlayers];
+          newPlayers[newIndex].time = newPlayers[newIndex].initialTime;
+          return newPlayers;
+        });
+
+        return newIndex;
+      });
+    }
+  };
+
   const nextTurn = () => {
     setCurrentPlayerIndex(prevIndex => {
       const newIndex = moveToNextPlayer(prevIndex, direction);
@@ -150,17 +168,27 @@ const MultiplayerTimer = () => {
           {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
           {isRunning ? 'Pause' : 'Start'}
         </Button>
+
         {(!isEditing && isReverseEnabled) && (
           <Button onClick={toggleDirection} variant="outline" className="col-span-2 sm:col-span-1">
             <ArrowLeftRight className="mr-2" />
             Reverse
           </Button>
         )}
+
+        {(!isEditing && isSkipEnabled) && (
+          <Button onClick={skipNextPlayer} variant="outline" className="col-span-2 sm:col-span-1">
+            <SkipForward className="mr-2" />
+            Skip
+          </Button>
+        )}
+
         {isEditing && (
           <>
             <Button onClick={addPlayer} variant="outline"><UserPlus className="mr-2" />Add Player</Button>
             <Button onClick={removePlayer} variant="outline"><UserMinus className="mr-2" />Remove Player</Button>
             <Button onClick={resetTimers} variant="outline"><RotateCcw className="mr-2" />Reset</Button>
+
             <div className="col-span-2 sm:col-span-3 flex items-center space-x-2">
               <Switch
                 id="reverse-mode"
@@ -169,6 +197,16 @@ const MultiplayerTimer = () => {
               />
               <Label htmlFor="reverse-mode">Enable Reverse Mode</Label>
             </div>
+
+            <div className="col-span-2 sm:col-span-3 flex items-center space-x-2">
+              <Switch
+                id="skip-mode"
+                checked={isSkipEnabled}
+                onCheckedChange={setIsSkipEnabled}
+              />
+              <Label htmlFor="skip-mode">Enable Skip Mode</Label>
+            </div>
+
           </>
         )}
       </div>
